@@ -23,12 +23,18 @@ module main(
 	//wire ALARM_FLAG, TIME_SET_FLAG;
 	
 	// Memory related signals
-	wire MEM_EN;
-	wire [6:0] MEM_ADDR;
+	wire MEM_EN, MEM_OUT_EN;
 	wire [31:0] MEM_DATA;
 	
+	assign MEM_OUT_EN = 1;
+	
 	// Block memory
-	TZ_ROM tz_string (CLK, MEM_EN, MEM_ADDR, MEM_DATA); // 32 x 32 ROM
+	TZ_ROM_32x32 tz_string (.clka(CLK),
+										.ena(MEM_EN),
+										.regcea(MEM_OUT_EN),
+										.addra(TZ_DATA),
+										.douta(MEM_DATA)
+									 ); // 32 x 32 ROM
 	
 	// LCD Driver Modules
 	LCD_STATE state_timer(RESETN, CLK, BUTTONS[2], STATE, LCD_CNT); // FIXME: fix button input
@@ -36,7 +42,7 @@ module main(
 	
 	// Clock related modules
 	CLK_COUNTER clock_rtc(RESETN, CLK_1HZ, STATE, CLOCK_DATA);
-	TIMEZONE_SELECT clock_tz(RESETN, CLK, STATE, {BUTTONS[4:3], BUTTONS[1:0]}, TZ_DATA, MEM_ADDR, MEM_EN);
+	TIMEZONE_SELECT clock_tz(RESETN, CLK, STATE, {BUTTONS[4:3], BUTTONS[1:0]}, TZ_DATA, MEM_EN);
 	CLK_OFFSET clock_offset(RESETN, CLK, TZ_DATA, CLOCK_DATA, LOCAL_CLOCK_DATA);
 	//ALARM_SET clock_alarm(RESETN, CLK, STATE, BUTTONS, ALARM_TIME, ALARM_FLAG);
 	//TIME_SET clock_setup(RESETN, CLK, STATE, BUTTONS, CLOCK_DATA, TIME_SETDATA, TIME_SET_FLAG);

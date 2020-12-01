@@ -15,7 +15,7 @@ module CLK_COUNTER(
 	
 	always @(negedge RESETN, posedge CLK) begin
 		if (~RESETN) begin
-			hour <= 0;
+			hour <= 15;
 			min <= 0;
 			sec <= 0;
 		end else begin // TODO: TZ offset application

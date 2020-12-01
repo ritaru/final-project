@@ -5,8 +5,5 @@
      behavior or data corruption.  It is strongly advised that
      users do not edit the contents of this file. -->
 <messages>
-<msg type="error" file="Simulator" num="702" delta="unknown" >Can not find design unit <arg fmt="%s" index="1">work.glbl</arg> in library <arg fmt="%s" index="2">work</arg> located at <arg fmt="%s" index="3">isim/work</arg> 
-</msg>
-
 </messages>
 

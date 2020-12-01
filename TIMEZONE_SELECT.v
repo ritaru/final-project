@@ -6,7 +6,6 @@ module TIMEZONE_SELECT(
 	input [3:0] STATE,
 	input [3:0] BUTTONS,
 	output reg [4:0] TZ_DATA,
-	output wire [6:0] MEM_ADDR,
 	output reg MEM_EN
     );
 	
@@ -25,7 +24,16 @@ module TIMEZONE_SELECT(
 			BUTTONS_PREV <= 0;
 			MEM_EN <= 1;
 		end else begin
-			if (STATE == TZ_SET) begin
+			if ((BUTTONS_PREV ^ BUTTONS) && BUTTONS) begin // Applied One-shot trigger
+				case (BUTTONS_PREV ^ BUTTONS)
+					UP: TZ_DATA <= TZ_DATA + 1;
+					DOWN: TZ_DATA <= TZ_DATA - 1;
+					LEFT: TZ_DATA <= TZ_DATA - 10;
+					RIGHT: TZ_DATA <= TZ_DATA + 10;
+				endcase
+			end
+			
+			/*if (STATE == TZ_SET) begin
 				MEM_EN <= 1;
 				if ((BUTTONS_PREV ^ BUTTONS) && BUTTONS) begin // Applied One-shot trigger
 					case (BUTTONS_PREV ^ BUTTONS)
@@ -37,11 +45,10 @@ module TIMEZONE_SELECT(
 				end
 			end else
 				MEM_EN <= 0;
+				*/
 			
 			BUTTONS_PREV <= BUTTONS;
 		end
 	end
-	
-	assign MEM_ADDR = TZ_DATA * 32; // Data bus width is 32-bits
 
 endmodule

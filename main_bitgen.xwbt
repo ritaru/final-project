@@ -1,0 +1,8 @@
+INTSTYLE=ise
+INFILE=C:\Users\RiTA\Projects\final-project\main.ncd
+OUTFILE=C:\Users\RiTA\Projects\final-project\main.bit
+FAMILY=Spartan3
+PART=xc3s200-4pq208
+WORKINGDIR=C:\Users\RiTA\Projects\final-project
+LICENSE=WebPack
+USER_INFO=212022758_0_0_376

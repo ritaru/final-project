@@ -11,6 +11,7 @@ module LCD_STATE(
 	parameter INITIAL_DELAY = 4'b0000,
 				 FUNCTION_SET = 4'b0001,
 				 INITIAL_SETUP = 4'b0010,
+				 CLEAR_SCREEN = 4'b0011,
 				 SETUP = 4'b0100, // Menu select
 				 TIME_SET = 4'b0101, // Time set
 				 TZ_SET = 4'b0110, // Tinezone select
@@ -27,7 +28,8 @@ module LCD_STATE(
 			case(STATE)
 				INITIAL_DELAY: if(CNT == 20) STATE <= FUNCTION_SET; // Wait for more than 15ms
 				FUNCTION_SET: if(CNT == 5) STATE <= INITIAL_SETUP; // Wait for more than 5ms
-				INITIAL_SETUP: if(CNT == 1) STATE <= LINE1; // 1ms for each step is enough (Typ. 100us)
+				INITIAL_SETUP: if(CNT == 1) STATE <= CLEAR_SCREEN; // 1ms for each step is enough (Typ. 100us)
+				CLEAR_SCREEN: if (CNT == 1) STATE <= LINE1;
 				SETUP: if(CNT == 1000) STATE <= LINE1;
 				LINE1: if(CNT == 20) STATE <= LINE2;
 				LINE2: if(CNT == 20) STATE <= LINE1;
@@ -54,6 +56,7 @@ module LCD_STATE(
 				INITIAL_DELAY: if(CNT >= 20) CNT <= 0; else CNT <= CNT + 1;
 				FUNCTION_SET: if(CNT >= 5) CNT <= 0; else CNT <= CNT + 1;
 				INITIAL_SETUP: if(CNT >= 1) CNT <= 0; else CNT <= CNT + 1;
+				CLEAR_SCREEN: if(CNT >= 1) CNT <= 0; else CNT <= CNT + 1;
 				SETUP: if(CNT >= 1000) CNT <= 0; else CNT <= CNT + 1;
 				LINE1: if(CNT >= 20) CNT <= 0; else CNT <= CNT + 1;
 				LINE2: if(CNT >= 20) CNT <= 0; else CNT <= CNT + 1;

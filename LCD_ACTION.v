@@ -15,7 +15,7 @@ module LCD_ACTION(
 	parameter INITIAL_DELAY = 4'b0000,
 				 FUNCTION_SET = 4'b0001,
 				 INITIAL_SETUP = 4'b0010,
-				 BUTTON_INPUT = 4'b0011,
+				 CLEAR_SCREEN = 4'b0011,
 				 SETUP = 4'b0100,
 				 TIME_SET = 4'b0101,
 				 TZ_SET = 4'b0110,
@@ -55,13 +55,19 @@ module LCD_ACTION(
 					endcase
 				end
 				
+				CLEAR_SCREEN: begin
+					LCD_RS <= 1'b0;
+					LCD_RW <= 1'b0;
+					LCD_DATA <= 8'b00000001;
+				end
+				
 				LINE1: begin
 					LCD_RW <= 1'b0; // LCD_EN only matters, this writes to LCD DDRAM
 					
 					case(CNT)
 						0: begin
 							LCD_RS <= 1'b0;
-							LCD_DATA <= 8'b10001000; // Set DDRAM address to 0x04, (5, 0) in LCD
+							LCD_DATA <= 8'b10000100; // Set DDRAM address to 0x04, (5, 0) in LCD
 						end
 						
 						1: begin
@@ -76,7 +82,7 @@ module LCD_ACTION(
 						
 						3: begin
 							LCD_RS <= 1'b1;
-							if (LCD_DATA [0])
+							if (CLOCK_DATA [0])
 								LCD_DATA <= 8'b00111010; // Display colon on every odd seconds
 							else
 								LCD_DATA <= 8'b00100000; // Display blank on every even seconds
@@ -94,7 +100,7 @@ module LCD_ACTION(
 						
 						6: begin
 							LCD_RS <= 1'b1;
-							if (LCD_DATA [0])
+							if (CLOCK_DATA [0])
 								LCD_DATA <= 8'b00111010;
 							else
 								LCD_DATA <= 8'b00100000;
@@ -123,6 +129,31 @@ module LCD_ACTION(
 					LCD_RW <= 1'b0;
 					
 					case(CNT)
+						1: begin
+							LCD_RS <= 1'b0;
+							LCD_DATA <= 8'b11000110; // Set DDRAM address to 0x04, (5, 0) in LCD
+						end
+						
+						2: begin
+							LCD_RS <= 1'b1;
+							LCD_DATA <= MEM_DATA[31:24];
+						end
+						
+						3: begin
+							LCD_RS <= 1'b1;
+							LCD_DATA <= MEM_DATA[23:16];
+						end
+						
+						4: begin
+							LCD_RS <= 1'b1;
+							LCD_DATA <= MEM_DATA[15:8];
+						end
+						
+						5: begin
+							LCD_RS <= 1'b1;
+							LCD_DATA <= MEM_DATA[7:0];
+						end
+						
 						default: begin
 							LCD_RW <= 1'b1;
 							LCD_RS <= 1'b1;
@@ -139,14 +170,8 @@ module LCD_ACTION(
 				
 				SETUP: begin
 					LCD_RW <= 1'b0;
-					
-					case (CNT)
-						default: begin
-							LCD_RW <= 1'b1;
-							LCD_RS <= 1'b1;
-							LCD_DATA <= 8'bx;
-						end
-					endcase
+					LCD_RS <= 1'b0;
+					LCD_DATA <= 8'b00000001;
 				end
 			endcase
 		end
