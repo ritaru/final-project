@@ -1,0 +1,1 @@
+-intstyle "ise" -incremental -lib "simprims_ver" -lib "unisims_ver" -lib "unimacro_ver" -lib "xilinxcorelib_ver" -o "C:/Users/RiTA/Projects/Clock/CLK_CNT_TB_isim_translate.exe" -prj "C:/Users/RiTA/Projects/Clock/CLK_CNT_TB_translate.prj" "work.CLK_CNT_TB" "work.glbl" 
