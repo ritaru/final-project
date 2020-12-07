@@ -5,6 +5,7 @@ module LCD_ACTION(
 	input CLK,
 	input [3:0] STATE,
 	input [31:0] CNT,
+	input [3:0] CHAR_CNT,
 	input [23:0] CLOCK_DATA,
 	input [31:0] MEM_DATA,
 	output reg LCD_RS,
@@ -62,7 +63,7 @@ module LCD_ACTION(
 				end
 				
 				LINE1: begin
-					LCD_RW <= 1'b0; // LCD_EN only matters, this writes to LCD DDRAM
+					LCD_RW <= 1'b0;
 					
 					case(CNT)
 						0: begin
@@ -136,7 +137,7 @@ module LCD_ACTION(
 						
 						2: begin
 							LCD_RS <= 1'b1;
-							LCD_DATA <= MEM_DATA[31:24];
+							LCD_DATA <= MEM_DATA[31:24]; // Display Timezone data, to be fixed?
 						end
 						
 						3: begin
@@ -170,8 +171,44 @@ module LCD_ACTION(
 				
 				SETUP: begin
 					LCD_RW <= 1'b0;
-					LCD_RS <= 1'b0;
-					LCD_DATA <= 8'b00000001;
+					
+					case (CHAR_CNT)
+						1: begin
+							LCD_RS <= 1'b0;
+							LCD_DATA <= 8'b10000100; // Set DDRAM address to 0x04, (5, 0) in LCD
+						end
+						
+						2: begin
+							LCD_RS <= 1'b0;
+							LCD_DATA <= 8'b01001101;
+						end
+						
+						3: begin
+							LCD_RS <= 1'b0;
+							LCD_DATA <= 8'b01000101;
+						end
+						
+						4: begin
+							LCD_RS <= 1'b0;
+							LCD_DATA <= 8'b01001110;
+						end
+						
+						5: begin
+							LCD_RS <= 1'b0;
+							LCD_DATA <= 8'b01010101;
+						end
+						
+						6: begin
+							LCD_RS <= 1'b0;
+							LCD_DATA <= 8'b11000100; // Set DDRAM address to 0x44, (5, 1) in LCD
+						end
+						
+						default: begin
+							LCD_RW <= 1'b1;
+							LCD_RS <= 1'b1;
+							LCD_DATA <= 8'bx;
+						end
+					endcase
 				end
 			endcase
 		end

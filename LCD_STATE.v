@@ -5,7 +5,8 @@ module LCD_STATE(
 	input CLK,
 	input CENTER_BUTTON,
 	output reg [3:0] STATE,
-	output reg [31:0] CNT
+	output reg [31:0] CNT,
+	output reg [3:0] CHAR_CNT
     );		 
 
 	parameter INITIAL_DELAY = 4'b0000,
@@ -17,7 +18,7 @@ module LCD_STATE(
 				 TZ_SET = 4'b0110, // Tinezone select
 				 LINE1 = 4'b1000,
 				 LINE2 = 4'b1001;
-
+				 
 	reg [9:0] BUTTON_CNT;
 	
 	always @(negedge RESETN, posedge CLK) begin
@@ -39,19 +40,18 @@ module LCD_STATE(
 			if (CENTER_BUTTON)
 				BUTTON_CNT <= BUTTON_CNT + 1;
 			else if (BUTTON_CNT > 999) begin
-				if (STATE != SETUP) begin
+				if (STATE != SETUP)
 					STATE <= SETUP;
-					BUTTON_CNT <= 0;
-				end
-			end else
-			BUTTON_CNT <= 0;
+				BUTTON_CNT <= 0;
+			end
 		end
 	end
 
 	always @(negedge RESETN, posedge CLK) begin
-		if (~RESETN)
+		if (~RESETN) begin
 			CNT <= 0;
-		else begin
+			CHAR_CNT <= 0;
+		end else begin
 			case(STATE)
 				INITIAL_DELAY: if(CNT >= 20) CNT <= 0; else CNT <= CNT + 1;
 				FUNCTION_SET: if(CNT >= 5) CNT <= 0; else CNT <= CNT + 1;
@@ -63,10 +63,10 @@ module LCD_STATE(
 				default: CNT <= 0;
 			endcase
 			
-			if (STATE == SETUP) begin
-				if (CENTER_BUTTON)
-					CNT <= 0; // reset counter to zero if any button input applied
-			end
+			case (STATE)
+				SETUP: CHAR_CNT <= CHAR_CNT + 1;
+				default: CHAR_CNT <= 0;
+			endcase
 		end
 	end
 

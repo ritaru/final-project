@@ -9,8 +9,17 @@ module TIMEZONE_SELECT(
 	output reg MEM_EN
     );
 	
-	parameter TZ_SET = 4'b0110,
-				 UP = 4'b1000,
+	parameter INITIAL_DELAY = 4'b0000,
+				 FUNCTION_SET = 4'b0001,
+				 INITIAL_SETUP = 4'b0010,
+				 CLEAR_SCREEN = 4'b0011,
+				 SETUP = 4'b0100, // Menu select
+				 TIME_SET = 4'b0101, // Time set
+				 TZ_SET = 4'b0110, // Tinezone select
+				 LINE1 = 4'b1000,
+				 LINE2 = 4'b1001;
+				 
+	parameter UP = 4'b1000,
 				 DOWN = 4'b0100,
 				 LEFT = 4'b0010,
 				 RIGHT = 4'b0001,
@@ -24,28 +33,18 @@ module TIMEZONE_SELECT(
 			BUTTONS_PREV <= 0;
 			MEM_EN <= 1;
 		end else begin
-			if ((BUTTONS_PREV ^ BUTTONS) && BUTTONS) begin // Applied One-shot trigger
-				case (BUTTONS_PREV ^ BUTTONS)
-					UP: TZ_DATA <= TZ_DATA + 1;
-					DOWN: TZ_DATA <= TZ_DATA - 1;
-					LEFT: TZ_DATA <= TZ_DATA - 10;
-					RIGHT: TZ_DATA <= TZ_DATA + 10;
-				endcase
-			end
-			
-			/*if (STATE == TZ_SET) begin
+			if (STATE == TZ_SET) begin
 				MEM_EN <= 1;
 				if ((BUTTONS_PREV ^ BUTTONS) && BUTTONS) begin // Applied One-shot trigger
 					case (BUTTONS_PREV ^ BUTTONS)
-						UP: TZ_DATA <= TZ_DATA + 1;
-						DOWN: TZ_DATA <= TZ_DATA - 1;
-						LEFT: TZ_DATA <= TZ_DATA - 10;
-						RIGHT: TZ_DATA <= TZ_DATA + 10;
+						UP: TZ_DATA <= TZ_DATA + 10;
+						DOWN: TZ_DATA <= TZ_DATA - 10;
+						LEFT: TZ_DATA <= TZ_DATA - 1;
+						RIGHT: TZ_DATA <= TZ_DATA + 1;
 					endcase
 				end
 			end else
 				MEM_EN <= 0;
-				*/
 			
 			BUTTONS_PREV <= BUTTONS;
 		end
