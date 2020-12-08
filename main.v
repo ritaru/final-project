@@ -13,14 +13,16 @@ module main(
 
 	// LCD related signals
 	wire [3:0] STATE;
+	wire [1:0] MENU_STATE;
 	wire [31:0] LCD_CNT; // TODO: Optimize bit size
-	wire [3:0] CHAR_CNT;
+	wire [4:0] CHAR_CNT;
 	assign LCD_EN = CLK;
 	
 	// Clock related signals
 	wire [23:0] LOCAL_CLOCK_DATA; // BCD Coded HHMMSS data - 4 Bits * 6 = 3 Bytes(1 Byte per two digits)
 	// wire [17:0] ALARM_TIME; // 6 Bits per HH,MM,SS
-	wire [17:0] TIME_SETDATA, CLOCK_DATA; // 6 Bits per HH,MM,SS
+	wire [17:0] TIME_SETDATA; // 6 Bits per HH,MM,SS
+	wire [17:0]	CLOCK_DATA; // 6 Bits per HH,MM,SS
 	wire [4:0] TZ_DATA; // Timezone state
 	wire TIME_SET_FLAG;
 	
@@ -39,8 +41,8 @@ module main(
 									 ); // 32 x 32 ROM
 	
 	// LCD Driver Modules
-	LCD_STATE state_timer(RESETN, CLK, BUTTONS[2], STATE, LCD_CNT, CHAR_CNT); // FIXME: fix menu entry error
-	LCD_ACTION action_description(RESETN, CLK, STATE, LCD_CNT, CHAR_CNT, LOCAL_CLOCK_DATA, MEM_DATA, LCD_RS, LCD_RW, LCD_DATA);
+	LCD_STATE state_timer(RESETN, CLK, BUTTONS, STATE, MENU_STATE, LCD_CNT, CHAR_CNT);
+	LCD_ACTION action_description(RESETN, CLK, STATE, MENU_STATE, LCD_CNT, CHAR_CNT, LOCAL_CLOCK_DATA, MEM_DATA, LCD_RS, LCD_RW, LCD_DATA);
 	
 	// Clock related modules
 	CLK_COUNTER clock_rtc(RESETN, CLK_1HZ, TIME_SETDATA, TIME_SET_FLAG, CLOCK_DATA);

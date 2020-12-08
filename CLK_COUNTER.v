@@ -24,12 +24,18 @@ module CLK_COUNTER(
 	// TODO: Timezone별 Offset 적용(STATE == TZ_SETUP인 경우 현재 Timezone Tracking)
 	// TODO: 실제 Count는 GMT 기준, 표시는 Timezone 기준
 	
+	reg is_time_set;
+	
 	always @(negedge RESETN, posedge CLK) begin
 		if (~RESETN) begin
 			hour <= 15;
 			min <= 0;
 			sec <= 0;
-		end else if (~TIME_SET_FLAG) begin // TODO: TZ offset application
+		end else if ((TIME_SET_FLAG ^ is_time_set) & TIME_SET_FLAG) begin // TODO: TZ offset application
+			hour <= TIME_SETDATA[17:12];
+			min <= TIME_SETDATA[11:6];
+			sec <= TIME_SETDATA[5:0];
+		end else begin
 			if (sec < 59)
 				sec <= sec + 1;
 			else
@@ -43,12 +49,15 @@ module CLK_COUNTER(
 			if ((hour < 23) && (min == 59) && (sec == 59))
 				hour <= hour + 1;
 			else if ((hour == 23) && (min == 59) && (sec == 59))
-				hour <= 0;	
-		end else begin
-			hour <= TIME_SETDATA[17:12];
-			min <= TIME_SETDATA[11:6];
-			sec <= TIME_SETDATA[5:0];
+				hour <= 0;
 		end
+	end
+	
+	always @(negedge RESETN, posedge CLK) begin
+		if (~RESETN)
+			is_time_set <= 0;
+		else
+			is_time_set <= TIME_SET_FLAG;
 	end
 	
 	assign DATA = {{1'b0, hour}, min, sec};

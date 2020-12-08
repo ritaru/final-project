@@ -129,7 +129,21 @@ module CLK_OFFSET(
 			endcase
 			
 			
-			if (STATE != TIME_SET) begin
+			if (STATE == TIME_SET) begin
+				if (offset_dir == 1) begin
+					if (TIME_SETDATA[17:12] < (24 - offset_hour))
+						hour <= TIME_SETDATA[17:12] + {2'b0, offset_hour};
+					else
+						hour <= TIME_SETDATA[17:12] - (24 - {2'b0, offset_hour});
+				end else begin
+					if (TIME_SETDATA[17:12] < offset_hour)
+						hour <= 24 - ({2'b0, offset_hour} - TIME_SETDATA[17:12]);
+					else
+						hour <= TIME_SETDATA[17:12] - {2'b0, offset_hour};
+				end
+				min <= TIME_SETDATA[11:6];
+				sec <= TIME_SETDATA[5:0];
+			end else begin // Offset is always applied to time data.
 				if (offset_dir == 1) begin
 					if (CLOCK_DATA[17:12] < (24 - offset_hour))
 						hour <= CLOCK_DATA[17:12] + {2'b0, offset_hour};
@@ -144,20 +158,6 @@ module CLK_OFFSET(
 				
 				min <= CLOCK_DATA[11:6];
 				sec <= CLOCK_DATA[5:0];
-			end else begin // Offset is always applied to time data.
-				if (offset_dir == 1) begin
-					if (TIME_SETDATA[17:12] < (24 - offset_hour))
-						hour <= TIME_SETDATA[17:12] + {2'b0, offset_hour};
-					else
-						hour <= TIME_SETDATA[17:12] - (24 - {2'b0, offset_hour});
-				end else begin
-					if (TIME_SETDATA[17:12] < offset_hour)
-						hour <= 24 - ({2'b0, offset_hour} - TIME_SETDATA[17:12]);
-					else
-						hour <= TIME_SETDATA[17:12] - {2'b0, offset_hour};
-				end
-				min <= TIME_SETDATA[11:6];
-				sec <= TIME_SETDATA[5:0];
 			end
 		end
 	end

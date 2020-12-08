@@ -37,10 +37,8 @@ module TIMEZONE_SELECT(
 				MEM_EN <= 1;
 				if ((BUTTONS_PREV ^ BUTTONS) && BUTTONS) begin // Applied One-shot trigger
 					case (BUTTONS_PREV ^ BUTTONS)
-						UP: TZ_DATA <= TZ_DATA + 10;
-						DOWN: TZ_DATA <= TZ_DATA - 10;
-						LEFT: TZ_DATA <= TZ_DATA - 1;
-						RIGHT: TZ_DATA <= TZ_DATA + 1;
+						UP: if (TZ_DATA < 13) TZ_DATA <= TZ_DATA + 1; else TZ_DATA <= 0;
+						DOWN: if (TZ_DATA > 0) TZ_DATA <= TZ_DATA - 1; else TZ_DATA <= 13;
 					endcase
 				end
 			end else
