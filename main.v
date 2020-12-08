@@ -43,7 +43,9 @@ module main(
 	LCD_ACTION action_description(RESETN, CLK, STATE, LCD_CNT, CHAR_CNT, LOCAL_CLOCK_DATA, MEM_DATA, LCD_RS, LCD_RW, LCD_DATA);
 	
 	// Clock related modules
-	CLK_COUNTER clock_rtc(RESETN, CLK_1HZ, STATE, TIME_SETDATA, TIME_SET_FLAG, CLOCK_DATA);
+	CLK_COUNTER clock_rtc(RESETN, CLK_1HZ, TIME_SETDATA, TIME_SET_FLAG, CLOCK_DATA);
+	
+	// Additional features
 	TIMEZONE_SELECT clock_tz(RESETN, CLK, STATE, {BUTTONS[4:3], BUTTONS[1:0]}, TZ_DATA, MEM_EN);
 	CLK_OFFSET clock_offset(RESETN, CLK, STATE, TZ_DATA, CLOCK_DATA, TIME_SETDATA, LOCAL_CLOCK_DATA);
 	//ALARM_SET clock_alarm(RESETN, CLK, STATE, BUTTONS, ALARM_TIME, ALARM_FLAG); // FIXME: Needs alarm memory separately(to store alarm bells, alarm time)

@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <report-views version="2.0" >
  <header>
-  <DateModified>2020-12-07T15:49:33</DateModified>
+  <DateModified>2020-12-08T12:01:53</DateModified>
   <ModuleName>main</ModuleName>
-  <SummaryTimeStamp>2020-12-07T15:41:11</SummaryTimeStamp>
+  <SummaryTimeStamp>2020-12-08T10:18:01</SummaryTimeStamp>
   <SavedFilePath>C:/Users/RiTA/Projects/Clock/iseconfig/main.xreport</SavedFilePath>
   <ImplementationReportsDirectory>C:/Users/RiTA/Projects/Clock\</ImplementationReportsDirectory>
   <DateInitialized>2020-11-26T19:59:22</DateInitialized>
@@ -11,7 +11,7 @@
  </header>
  <body>
   <viewgroup label="Design Overview" >
-   <view inputState="Unknown" program="implementation" ShowPartitionData="false" type="FPGASummary" file="main_summary.html" label="Summary" ExpandWarnings="true" >
+   <view inputState="Unknown" program="implementation" ExpandErrors="true" ShowPartitionData="false" ExpandConstraints="true" type="FPGASummary" file="main_summary.html" label="Summary" ExpandWarnings="true" >
     <toc-item title="Design Overview" target="Design Overview" />
     <toc-item title="Design Utilization Summary" target="Design Utilization Summary" />
     <toc-item title="Performance Summary" target="Performance Summary" />

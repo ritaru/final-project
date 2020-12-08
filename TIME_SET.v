@@ -38,8 +38,10 @@ module TIME_SET(
 			time_data_loaded <= 0;
 		end else begin
 			if (STATE == TIME_SET) begin
-				if (~time_data_loaded)
+				if (~time_data_loaded) begin
 					TIME_SETDATA <= CLOCK_DATA;
+					time_data_loaded <= 1'b1;
+				end
 					
 				case ((buttons_prev ^ BUTTONS) & BUTTONS)
 					UP: begin
@@ -49,7 +51,14 @@ module TIME_SET(
 							2: if (TIME_SETDATA[11:6] < 59) TIME_SETDATA[11:6] <= TIME_SETDATA[11:6] + 1; else TIME_SETDATA[11:6] <= 0;
 							3: if (TIME_SETDATA[11:6] < 49) TIME_SETDATA[11:6] <= TIME_SETDATA[11:6] + 10; else TIME_SETDATA[11:6] <= TIME_SETDATA[11:6] + 14;
 							4: if (TIME_SETDATA[17:12] < 23) TIME_SETDATA[17:12] <= TIME_SETDATA[17:12] + 1; else TIME_SETDATA[17:12] <= 0;
-							5: if (TIME_SETDATA[17:12] < 13) TIME_SETDATA[17:12] <= TIME_SETDATA[17:12] + 10; else TIME_SETDATA[17:12] <= TIME_SETDATA[17:12] + 44;
+							5: begin
+								if (TIME_SETDATA[17:12] < 13)
+									TIME_SETDATA[17:12] <= TIME_SETDATA[17:12] + 10;
+								else if (TIME_SETDATA[17:12] < 20)
+									TIME_SETDATA[17:12] <= TIME_SETDATA[17:12] + 54;
+								else
+									TIME_SETDATA[17:12] <= TIME_SETDATA[17:12] + 44;
+							end
 						endcase
 					end
 					

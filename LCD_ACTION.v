@@ -180,27 +180,117 @@ module LCD_ACTION(
 						
 						2: begin
 							LCD_RS <= 1'b0;
-							LCD_DATA <= 8'b01001101;
+							LCD_DATA <= 8'b01001101; // M
 						end
 						
 						3: begin
 							LCD_RS <= 1'b0;
-							LCD_DATA <= 8'b01000101;
+							LCD_DATA <= 8'b01000101; // E
 						end
 						
 						4: begin
 							LCD_RS <= 1'b0;
-							LCD_DATA <= 8'b01001110;
+							LCD_DATA <= 8'b01001110; // N
 						end
 						
 						5: begin
 							LCD_RS <= 1'b0;
-							LCD_DATA <= 8'b01010101;
+							LCD_DATA <= 8'b01010101; // U
 						end
 						
 						6: begin
 							LCD_RS <= 1'b0;
 							LCD_DATA <= 8'b11000100; // Set DDRAM address to 0x44, (5, 1) in LCD
+						end
+						
+						7: begin
+							LCD_RS <= 1'b0;
+							case(MENU_STATE)
+								2'b00: LCD_DATA <= 8'b;
+								2'b01: LCD_DATA <= 8'b;
+								2'b10: LCD_DATA <= 8'b;
+								2'b11: LCD_DATA <= 8'b;
+							endcase
+						end
+						
+						8: begin
+							LCD_RS <= 1'b0;
+							case(MENU_STATE)
+								2'b00: LCD_DATA <= 8'b;
+								2'b01: LCD_DATA <= 8'b;
+								2'b10: LCD_DATA <= 8'b;
+								2'b11: LCD_DATA <= 8'b;
+							endcase
+						end
+						
+						9: begin
+							LCD_RS <= 1'b0;
+							case(MENU_STATE)
+								2'b00: LCD_DATA <= 8'b;
+								2'b01: LCD_DATA <= 8'b;
+								2'b10: LCD_DATA <= 8'b;
+								2'b11: LCD_DATA <= 8'b;
+							endcase
+						end
+						
+						10: begin
+							LCD_RS <= 1'b0;
+							case(MENU_STATE)
+								2'b00: LCD_DATA <= 8'b;
+								2'b01: LCD_DATA <= 8'b;
+								2'b10: LCD_DATA <= 8'b;
+								2'b11: LCD_DATA <= 8'b;
+							endcase
+						end
+						
+						11: begin
+							LCD_RS <= 1'b0;
+							case(MENU_STATE)
+								2'b00: LCD_DATA <= 8'b;
+								2'b01: LCD_DATA <= 8'b;
+								2'b10: LCD_DATA <= 8'b;
+								2'b11: LCD_DATA <= 8'b;
+							endcase
+						end
+						
+						12: begin
+							LCD_RS <= 1'b0;
+							case(MENU_STATE)
+								2'b00: LCD_DATA <= 8'b;
+								2'b01: LCD_DATA <= 8'b;
+								2'b10: LCD_DATA <= 8'b;
+								2'b11: LCD_DATA <= 8'b;
+							endcase
+						end
+						
+						13: begin
+							LCD_RS <= 1'b0;
+							case(MENU_STATE)
+								2'b00: LCD_DATA <= 8'b;
+								2'b01: LCD_DATA <= 8'b;
+								2'b10: LCD_DATA <= 8'b;
+								2'b11: LCD_DATA <= 8'b;
+							endcase
+						end
+						
+						14: begin
+							LCD_RS <= 1'b0;
+							case(MENU_STATE)
+								2'b00: LCD_DATA <= 8'b;
+								2'b01: LCD_DATA <= 8'b;
+								2'b10: LCD_DATA <= 8'b;
+								2'b11: LCD_DATA <= 8'b;
+							endcase
+						end
+						
+						15: begin
+							LCD_RS <= 1'b0;
+							case(MENU_STATE)
+								2'b00: LCD_DATA <= 8'b;
+								2'b01: LCD_DATA <= 8'b;
+								2'b10: LCD_DATA <= 8'b;
+								2'b11: LCD_DATA <= 8'b;
+							endcase
 						end
 						
 						default: begin

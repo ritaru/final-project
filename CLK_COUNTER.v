@@ -3,7 +3,6 @@
 module CLK_COUNTER(
 	input RESETN,
 	input CLK,
-	input [3:0] STATE,
 	input [17:0] TIME_SETDATA,
 	input TIME_SET_FLAG,
 	output wire [17:0] DATA
@@ -30,7 +29,7 @@ module CLK_COUNTER(
 			hour <= 15;
 			min <= 0;
 			sec <= 0;
-		end else if (STATE != SETUP && STATE != TIME_SET) begin // TODO: TZ offset application
+		end else if (~TIME_SET_FLAG) begin // TODO: TZ offset application
 			if (sec < 59)
 				sec <= sec + 1;
 			else
@@ -45,12 +44,10 @@ module CLK_COUNTER(
 				hour <= hour + 1;
 			else if ((hour == 23) && (min == 59) && (sec == 59))
 				hour <= 0;	
-		end else if (STATE == TIME_SET) begin
-			if (TIME_SET_FLAG) begin // Save time data in UTC
-				hour <= TIME_SETDATA[17:12];
-				min <= TIME_SETDATA[11:6];
-				sec <= TIME_SETDATA[5:0];
-			end
+		end else begin
+			hour <= TIME_SETDATA[17:12];
+			min <= TIME_SETDATA[11:6];
+			sec <= TIME_SETDATA[5:0];
 		end
 	end
 	
