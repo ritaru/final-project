@@ -46,7 +46,7 @@ module TIME_SET(
 					min <= CLOCK_DATA[11:6];
 					sec <= CLOCK_DATA[5:0];
 					time_data_loaded <= 1'b1;
-					TIME_SET_FLAG <= 1'b0;
+					TIME_SET_FLAG <= 0;
 				end
 					
 				case ((buttons_prev ^ BUTTONS) & BUTTONS)

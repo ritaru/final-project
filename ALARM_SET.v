@@ -7,7 +7,6 @@ module ALARM_SET(
     input [4:0] BUTTONS,
     input [17:0] RTC_DATA,
     input ALARM_TIME_SET,
-    output reg ALARM_SET_LINE_POSITION,
     output reg [17:0] ALARM_SET_DATA,
     output reg ALARM_SET_FLAG
     );
@@ -30,8 +29,6 @@ module ALARM_SET(
         if (~RESETN) begin
             ALARM_SET_FLAG <= 0;
             BUTTONS_PREV <= 0;
-            
-            ALARM_SET_LINE_POSITION <= 0;
             cursor_position <= 0;
             
             hour <= 0;
@@ -41,15 +38,15 @@ module ALARM_SET(
         end else begin
             if (STATE == ALARM_SET) begin 
                 if ((~ALARM_SET_FLAG) && (~is_time_loaded)) begin
-                    {hour, min, sec} <= RTC_DATA[16:0];
+                    hour <= RTC_DATA[16:12];
+										min <= RTC_DATA[11:6];
+										sec <= RTC_DATA[5:0];
                     is_time_loaded <= 1;
                 end
 
                 case ((BUTTONS ^ BUTTONS_PREV) & BUTTONS)
                     UP: begin
-                        if (ALARM_TIME_SET)
-                            ALARM_SET_LINE_POSITION <= ~ALARM_SET_LINE_POSITION;
-                        else begin
+                        if (~ALARM_TIME_SET) begin
                            case(cursor_position)
                                 0: if (sec < 59) sec <= sec + 1; else sec <= 0;
                                 1: if (sec < 49) sec <= sec + 10; else sec <= sec - 50;
@@ -61,9 +58,7 @@ module ALARM_SET(
                     end
 
                     DOWN: begin
-                        if (ALARM_TIME_SET)
-                            ALARM_SET_LINE_POSITION <= ~ALARM_SET_LINE_POSITION;
-                        else begin
+                        if (~ALARM_TIME_SET) begin
                            case(cursor_position)
                                 0: if (sec < 59) sec <= sec + 1; else sec <= 0;
                                 1: if (sec < 49) sec <= sec + 10; else sec <= sec - 50;
@@ -75,7 +70,7 @@ module ALARM_SET(
                     end
 
                     LEFT: begin
-                        if (~ALARM_SET_LINE_POSITION) begin
+                        if (~ALARM_TIME_SET) begin
                             if (cursor_position < 4)
                                 cursor_position <= cursor_position + 1;
                             else
@@ -85,7 +80,7 @@ module ALARM_SET(
                     end
 
                     RIGHT: begin
-                        if (~ALARM_SET_LINE_POSITION) begin
+                        if (~ALARM_TIME_SET) begin
                             if (cursor_position > 0)
                                 cursor_position <= 4;
                             else

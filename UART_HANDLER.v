@@ -28,7 +28,7 @@ module UART_HANDLER(
 	assign TxBuffer[10] = ":";
 	assign TxBuffer[11] = {4'b0000, CLOCK_DATA[7:4]} | 8'b00110000; // 2
 	assign TxBuffer[12] = {4'b0000, CLOCK_DATA[3:0]} | 8'b00110000; // 8
-	assign TxBuffer[13] = "\n"; // "<LF>"
+	assign TxBuffer[13] = 13; // "<CR>"
 	
 	always @(negedge RESETN, posedge TxClk) begin
 		if (~RESETN) begin

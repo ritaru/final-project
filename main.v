@@ -4,6 +4,7 @@ module main(
 	input RESETN,
 	input CLK,
 	input CLK_1HZ,
+	input CLK_1M,
 	input [4:0] BUTTONS,
 	output wire LCD_EN,
 	output wire LCD_RS,
@@ -30,7 +31,6 @@ module main(
 	wire [4:0] TZ_DATA; // Timezone state
 	wire [17:0] TIME_SETDATA; // 6 Bits per HH,MM,SS
 	wire [17:0] ALARM_TIME; // 6 Bits per HH,MM,SS
-	wire ALARM_LINE_POS;
 	wire ALARM_FLAG;
 	wire ALARM_TIME_IS_SET;
 	reg ALARM_TIME_UP;
@@ -80,13 +80,12 @@ module main(
 		.RESETN(RESETN),
 		.CLK(CLK),
 		.BUTTONS(BUTTONS),
-		.ALARM_STATE(ALARM_TIME_UP),
-		.ALARM_LINE_POS(ALARM_LINE_POS),
 		.STATE(STATE),
+		.ALARM_STATE(ALARM_TIME_UP),
+		.ALARM_MENU_STATE(ALARM_TIME_IS_SET),
 		.MENU_STATE(MENU_STATE),
 		.CNT(LCD_CNT),
-		.CHAR_CNT(CHAR_CNT),
-		.ALARM_MENU_STATE(ALARM_TIME_IS_SET)
+		.CHAR_CNT(CHAR_CNT)
 		);
 
 	LCD_ACTION action_description(
@@ -100,7 +99,8 @@ module main(
 		.MEM_DATA(MEM_DATA),
 		.LCD_RS(LCD_RS),
 		.LCD_RW(LCD_RW),
-		.LCD_DATA(LCD_DATA)
+		.LCD_DATA(LCD_DATA),
+		.ALARM_FLAG(ALARM_FLAG)
 		);
 	
 	// Clock related modules
@@ -139,8 +139,7 @@ module main(
 		.RTC_DATA(RTC_DATA),
 		.ALARM_TIME_SET(ALARM_TIME_IS_SET),
 		.ALARM_SET_DATA(ALARM_TIME),
-		.ALARM_SET_FLAG(ALARM_FLAG),
-		.ALARM_SET_LINE_POSITION(ALARM_LINE_POS)
+		.ALARM_SET_FLAG(ALARM_FLAG)
 		); 
 
 	ALARM_HANDLER alarm_handler(
@@ -164,12 +163,22 @@ module main(
 	wire TxTrigger;
 	wire TxReady;
 	wire [7:0] DataOut;
+	wire [23:0] UART_RTC;
+	
+	CLK_OFFSET rtc_offset (
+		.RESETN(RESETN),
+		.CLK(CLK),
+		.STATE(STATE),
+		.TZ_DATA(TZ_DATA),
+		.CLOCK_DATA(RTC_DATA),
+		.LOCAL_CLOCK_DATA(UART_RTC)
+	);
 	
 	UART_HANDLER uart_manager (
-		.CLK(CLK),
+		.CLK(CLK_1HZ),
 		.TxClk(TxClk),
 		.RESETN(RESETN),
-		.CLOCK_DATA(LOCAL_CLOCK_DATA),
+		.CLOCK_DATA(UART_RTC),
 		.DataOut(DataOut),
 		.MEM_DATA(MEM_DATA),
 		.TxReady(TxReady),
@@ -177,7 +186,7 @@ module main(
 	);
 	
 	UART uart (
-		.CLK(CLK),
+		.CLK(CLK_1M),
 		.RESETN(RESETN),
 		.RxD(),
 		.TxD(TxD),

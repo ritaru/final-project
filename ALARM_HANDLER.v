@@ -4,7 +4,7 @@ module ALARM_HANDLER(
   input RESETN,
   input CLK,
   input [3:0] STATE,
-  output reg BUZZER
+  output wire BUZZER
 );
 
 	parameter INITIAL_DELAY = 4'b0000,
@@ -19,15 +19,5 @@ module ALARM_HANDLER(
 				 LINE2 = 4'b1001,
 				 ALARM_TIME_REACHED = 4'b1010;
 
-	always @(negedge RESETN, posedge CLK) begin
-		if (~RESETN) begin
-			BUZZER <= 0;
-		end else begin
-			if (STATE == ALARM_TIME_REACHED) begin
-				BUZZER <= 0;
-			end else
-				BUZZER <= 0;
-		end
-	end
-
+	assign BUZZER = (STATE == ALARM_TIME_REACHED) & CLK;
 endmodule

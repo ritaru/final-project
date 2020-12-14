@@ -9,6 +9,7 @@ module LCD_ACTION(
 	input [4:0] CHAR_CNT,
 	input [23:0] CLOCK_DATA,
 	input [31:0] MEM_DATA,
+	input ALARM_FLAG,
 	output reg LCD_RS,
 	output reg LCD_RW,
 	output reg [7:0] LCD_DATA
@@ -18,11 +19,13 @@ module LCD_ACTION(
 				 FUNCTION_SET = 4'b0001,
 				 INITIAL_SETUP = 4'b0010,
 				 CLEAR_SCREEN = 4'b0011,
-				 SETUP = 4'b0100,
-				 TIME_SET = 4'b0101,
-				 TZ_SET = 4'b0110,
+				 SETUP = 4'b0100, // Menu select
+				 TIME_SET = 4'b0101, // Time set
+				 TZ_SET = 4'b0110, // Tinezone select
+				 ALARM_SET = 4'b0111,
 				 LINE1 = 4'b1000,
-				 LINE2 = 4'b1001;
+				 LINE2 = 4'b1001,
+				 ALARM_TIME_REACHED = 4'b1010;
 
 	parameter CLOCK_SETUP = 2'b00,
 						TIMEZONE_SETUP = 2'b01,
@@ -84,46 +87,40 @@ module LCD_ACTION(
 					
 					case(CNT)
 						0: begin
-							if (~is_lcd_cleared) begin
-								LCD_RW <= 1'b0;
-								LCD_RS <= 1'b0;
-								LCD_DATA <= 8'b00000001;
-							end else begin
-								LCD_RW <= 1'b1;
-								LCD_RS <= 1'b1;
-								LCD_DATA <= 8'bx;
-							end
+							LCD_RW <= is_lcd_cleared ? 1'b1 : 1'b0;
+							LCD_RS <= is_lcd_cleared ? 1'b1 : 1'b0;
+							LCD_DATA <= is_lcd_cleared ? 8'bx : 8'b00000001;
 						end
 
 						1: begin
-							if (~is_lcd_cleared) begin
-								LCD_RW <= 1'b0;
-								LCD_RS <= 1'b0;
-								LCD_DATA <= 8'b00000001;
-								is_lcd_cleared <= 1;
-							end else begin
-								LCD_RW <= 1'b1;
-								LCD_RS <= 1'b1;
-								LCD_DATA <= 8'bx;
-							end
+							LCD_RW <= is_lcd_cleared ? 1'b1 : 1'b0;
+							LCD_RS <= is_lcd_cleared ? 1'b1 : 1'b0;
+							LCD_DATA <= is_lcd_cleared ? 8'bx : 8'b00000001;
+							is_lcd_cleared <= 1;
 						end
 						
 						2: begin
+							LCD_RW <= 1'b0;
+							LCD_RS <= 1'b0;
+							LCD_DATA <= 8'b10000100;
+						end
+						
+						3: begin
 							LCD_RS <= 1'b0;
 							LCD_DATA <= 8'b10000100; // Set DDRAM address to 0x04, (5, 0) in LCD
 						end
 						
-						3: begin
+						4: begin
 							LCD_RS <= 1'b1;
 							LCD_DATA <= {4'b0000, CLOCK_DATA[23:20]} | 8'b00110000; // ASCII Code '0' + BCD Data
 						end
 						
-						4: begin
+						5: begin
 							LCD_RS <= 1'b1;
 							LCD_DATA <= {4'b0000, CLOCK_DATA[19:16]} | 8'b00110000;
 						end
 						
-						5: begin
+						6: begin
 							LCD_RS <= 1'b1;
 							if (CLOCK_DATA [0])
 								LCD_DATA <= 8'b00111010; // Display colon on every odd seconds
@@ -131,17 +128,17 @@ module LCD_ACTION(
 								LCD_DATA <= 8'b00100000; // Display blank on every even seconds
 						end
 						
-						6: begin
+						7: begin
 							LCD_RS <= 1'b1;
 							LCD_DATA <= {4'b0000, CLOCK_DATA[15:12]} | 8'b00110000;
 						end
 						
-						7: begin
+						8: begin
 							LCD_RS <= 1'b1;
 							LCD_DATA <= {4'b0000, CLOCK_DATA[11:8]} | 8'b00110000;
 						end
 						
-						8: begin
+						9: begin
 							LCD_RS <= 1'b1;
 							if (CLOCK_DATA [0])
 								LCD_DATA <= 8'b00111010;
@@ -149,12 +146,12 @@ module LCD_ACTION(
 								LCD_DATA <= 8'b00100000;
 						end
 						
-						9: begin
+						10: begin
 							LCD_RS <= 1'b1;
 							LCD_DATA <= {4'b0000, CLOCK_DATA[7:4]} | 8'b00110000;
 						end
 						
-						10: begin
+						11: begin
 							LCD_RS <= 1'b1;
 							LCD_DATA <= {4'b0000, CLOCK_DATA[3:0]} | 8'b00110000;
 						end
@@ -490,7 +487,7 @@ module LCD_ACTION(
 						
 						19: begin
 							LCD_RS <= 1'b1;
-							LCD_DATA <= MEM_DATA[31:24]; // Display Timezone data, to be fixed?
+							LCD_DATA <= MEM_DATA[31:24];
 						end
 						
 						20: LCD_DATA <= MEM_DATA[23:16];
@@ -509,40 +506,22 @@ module LCD_ACTION(
 				TIME_SET: begin
 					case (CHAR_CNT)
 						0: begin
-							if (~is_lcd_cleared) begin
-								LCD_RW <= 1'b0;
-								LCD_RS <= 1'b0;
-								LCD_DATA <= 8'b00000001;
-							end else begin
-								LCD_RW <= 1'b0;
-								LCD_RS <= 1'b0;
-								LCD_DATA <= 8'b10000000;
-							end
+							LCD_RW <= 1'b0;
+							LCD_RS <= 1'b0;
+							LCD_DATA <= is_lcd_cleared ? 8'b10000100 : 8'b00000001;
 						end
 						
 						1: begin
-							if (~is_lcd_cleared) begin
-								LCD_RW <= 1'b0;
-								LCD_RS <= 1'b0;
-								LCD_DATA <= 8'b00000001;
-							end else begin
-								LCD_RW <= 1'b0;
-								LCD_RS <= 1'b0;
-								LCD_DATA <= 8'b10000000;
-							end
+							LCD_RW <= 1'b0;
+							LCD_RS <= 1'b0;
+							LCD_DATA <= is_lcd_cleared ? 8'b10000100 : 8'b00000001;
 						end
 
 						2: begin
-							if (~is_lcd_cleared) begin
-								LCD_RW <= 1'b0;
-								LCD_RS <= 1'b0;
-								LCD_DATA <= 8'b00000001;
-								is_lcd_cleared <= 1;
-							end else begin
-								LCD_RW <= 1'b0;
-								LCD_RS <= 1'b0;
-								LCD_DATA <= 8'b10000000;
-							end
+							LCD_RW <= 1'b0;
+							LCD_RS <= 1'b0;
+							LCD_DATA <= is_lcd_cleared ? 8'b10000100 : 8'b00000001;
+							is_lcd_cleared <= 1;
 						end
 						
 						3: begin
@@ -570,6 +549,80 @@ module LCD_ACTION(
 						10: LCD_DATA <= 8'b00111010;
 						11: LCD_DATA <= {4'b0000, CLOCK_DATA[7:4]} | 8'b00110000;
 						12: LCD_DATA <= {4'b0000, CLOCK_DATA[3:0]} | 8'b00110000;
+						
+						default: begin
+							LCD_RW <= 1'b1;
+							LCD_RS <= 1'b1;
+							LCD_DATA <= 8'bx;
+						end
+						
+					endcase
+				end
+				
+				ALARM_SET: begin
+					case (CHAR_CNT)
+						0: begin
+							LCD_RW <= 1'b0;
+							LCD_RS <= 1'b0;
+							LCD_DATA <= is_lcd_cleared ? 8'b10000100 : 8'b00000001;
+						end
+						
+						1: begin
+							LCD_RW <= 1'b0;
+							LCD_RS <= 1'b0;
+							LCD_DATA <= is_lcd_cleared ? 8'b10000100 : 8'b00000001;
+						end
+
+						2: begin
+							LCD_RW <= 1'b0;
+							LCD_RS <= 1'b0;
+							LCD_DATA <= is_lcd_cleared ? 8'b10000100 : 8'b00000001;
+							is_lcd_cleared <= 1;
+						end
+						
+						3: begin
+							LCD_RW <= 1'b0;
+							LCD_RS <= 1'b0;
+							LCD_DATA <= 8'b10000100;
+						end
+						
+						4: begin
+							LCD_RW <= 1'b0;
+							LCD_RS <= 1'b0;
+							LCD_DATA <= 8'b10000100;
+						end
+						
+						5: begin
+							LCD_RW <= 1'b0;
+							LCD_RS <= 1'b1;
+							LCD_DATA <= {4'b0000, CLOCK_DATA[23:20]} | 8'b00110000;
+						end
+						
+						6: LCD_DATA <= {4'b0000, CLOCK_DATA[19:16]} | 8'b00110000;
+						7: LCD_DATA <= 8'b00111010;
+						8: LCD_DATA <= {4'b0000, CLOCK_DATA[15:12]} | 8'b00110000;
+						9: LCD_DATA <= {4'b0000, CLOCK_DATA[11:8]} | 8'b00110000;
+						10: LCD_DATA <= 8'b00111010;
+						11: LCD_DATA <= {4'b0000, CLOCK_DATA[7:4]} | 8'b00110000;
+						12: LCD_DATA <= {4'b0000, CLOCK_DATA[3:0]} | 8'b00110000;
+						
+						13: begin
+							LCD_RS <= 1'b0;
+							LCD_DATA <= 8'b11000100;
+						end
+						
+						14: begin
+							LCD_RS <= 1'b1;
+							LCD_DATA <= ALARM_FLAG ? "E" : "D";
+						end
+						
+						15: LCD_DATA <= ALARM_FLAG ? "N" : "I";
+						16: LCD_DATA <= ALARM_FLAG ? "A" : "S";
+						17: LCD_DATA <= ALARM_FLAG ? "B" : "A";
+						18: LCD_DATA <= ALARM_FLAG ? "L" : "B";
+						19: LCD_DATA <= ALARM_FLAG ? "E" : "L";
+						20: LCD_DATA <= ALARM_FLAG ? "D" : "E";
+						21: LCD_DATA <= ALARM_FLAG ? " " : "D";
 						
 						default: begin
 							LCD_RW <= 1'b1;
