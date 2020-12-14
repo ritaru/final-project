@@ -4,32 +4,32 @@ module CLK_OFFSET(
 	input RESETN,
 	input CLK,
 	input [3:0] STATE,
-	input [4:0] TZ_DATA,
+	input [3:0] TZ_DATA,
 	input [17:0] CLOCK_DATA,
 	output wire [23:0] LOCAL_CLOCK_DATA
     );
 
 	reg [5:0] hour, min, sec;
 	reg [3:0] offset_hour;
-	// reg [5:0] offset_min;
+	// reg [5:0] offset_min; // Trimmed off any excess signals, but can implement later
 	reg offset_dir;
 	
-	// FIXME: fix parameters
-	
-	parameter AKST = 5'b00000,
-				 AST = 5'b00001,
-				 CET = 5'b00010,
-				 CST = 5'b00011,
-				 EST = 5'b00100,
-				 GMT = 5'b00101,
-				 HKT = 5'b00110,
-				 HAST = 5'b00111,
-				 JST = 5'b01000,
-				 KST = 5'b01001,
-				 MSK = 5'b01010,
-				 MST = 5'b01011,
-				 PST = 5'b01100,
-				 VLAT = 5'b01101;
+	parameter AKST = 4'b0000,
+				 AST = 4'b0001,
+				 CET = 4'b0010,
+				 CST = 4'b0011,
+				 EET = 4'b0100,
+				 EST = 4'b0101,
+				 GMT = 4'b0110,
+				 HKT = 4'b0111,
+				 HAST = 4'b1000,
+				 JST = 4'b1001,
+				 KST = 4'b1010,
+				 MSK = 4'b1011,
+				 MST = 4'b1100,
+				 PST = 4'b1101,
+				 VLAT = 4'b1110,
+				 WST = 4'b1111;
 				 
 	parameter INITIAL_DELAY = 4'b0000,
 				 FUNCTION_SET = 4'b0001,
@@ -68,12 +68,17 @@ module CLK_OFFSET(
 					offset_dir <= 1;
 				end
 				
+				EET: begin // Eastern Europe Time
+					offset_hour <= 2;
+					offset_dir <= 1;
+				end
+				
 				EST: begin // Eastern Standard Time
 					offset_hour <= 5;
 					offset_dir <= 0;
 				end
 				
-				GMT: begin
+				GMT: begin // Greenwich Mean Time
 					offset_hour <= 0;
 					offset_dir <= 1;
 				end
@@ -118,6 +123,11 @@ module CLK_OFFSET(
 					offset_dir <= 1;
 				end
 				
+				WST: begin // Western Standard Time
+					offset_hour <= 8;
+					offset_dir <= 1;
+				end
+				
 				default: begin
 					offset_hour <= 0;
 					offset_dir <= 1;
@@ -132,7 +142,7 @@ module CLK_OFFSET(
 			min <= 0;
 			sec <= 0;
 		end else begin
-			if (offset_dir == 1) begin
+			if (offset_dir == 1) begin // Offset handling section
 					if (CLOCK_DATA[17:12] < (24 - offset_hour))
 						hour <= CLOCK_DATA[17:12] + {2'b0, offset_hour};
 					else

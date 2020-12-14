@@ -28,12 +28,12 @@ module main(
 	wire TIME_SET_FLAG;
 	
 	// Additional Feature signals
-	wire [4:0] TZ_DATA; // Timezone state
+	wire [3:0] TZ_DATA; // Timezone state
 	wire [17:0] TIME_SETDATA; // 6 Bits per HH,MM,SS
 	wire [17:0] ALARM_TIME; // 6 Bits per HH,MM,SS
 	wire ALARM_FLAG;
 	wire ALARM_TIME_IS_SET;
-	reg ALARM_TIME_UP;
+	wire ALARM_TIME_UP;
 	
 	// Memory related signals
 	wire MEM_EN, MEM_OUT_EN;
@@ -55,25 +55,14 @@ module main(
 			endcase
 		end
 	end
-
-	always @(negedge RESETN, posedge CLK) begin
-		if (~RESETN)
-			ALARM_TIME_UP <= 0;
-		else begin
-			if (ALARM_FLAG && (RTC_DATA == ALARM_TIME))
-				ALARM_TIME_UP <= 1;
-			else
-				ALARM_TIME_UP <= 0;
-		end
-	end
 	
 	// Block memory
-	TZ_ROM_32x32 tz_string (.clka(CLK),
+	TZ_ROM_32x16 tz_string (.clka(CLK),
 										.ena(MEM_EN),
 										.regcea(MEM_OUT_EN),
 										.addra(TZ_DATA),
 										.douta(MEM_DATA)
-									 ); // 32 x 32 ROM
+									 ); // 32 x 16 ROM
 	
 	// LCD Driver Modules
 	LCD_STATE state_timer(
@@ -145,7 +134,12 @@ module main(
 	ALARM_HANDLER alarm_handler(
 		.RESETN(RESETN),
 		.CLK(CLK),
+		.CLK_1M(CLK_1M),
 		.STATE(STATE),
+		.RTC_DATA(RTC_DATA),
+		.ALARM_TIME(ALARM_TIME),
+		.ALARM_FLAG(ALARM_FLAG),
+		.ALARM_TIME_UP(ALARM_TIME_UP),
 		.BUZZER(BUZZER)
 	);
 

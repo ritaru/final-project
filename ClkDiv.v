@@ -8,7 +8,7 @@ module ClkDiv(
     );
 	
 	reg [5:0] TxCNT;
-	reg [2:0] RxCNT;
+	reg [1:0] RxCNT;
 	
 	// 9.6154KHz Clock for 9600bps
 	always @(negedge RESETN, posedge CLK) begin

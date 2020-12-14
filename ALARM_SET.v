@@ -38,10 +38,10 @@ module ALARM_SET(
         end else begin
             if (STATE == ALARM_SET) begin 
                 if ((~ALARM_SET_FLAG) && (~is_time_loaded)) begin
-                    hour <= RTC_DATA[16:12];
-										min <= RTC_DATA[11:6];
-										sec <= RTC_DATA[5:0];
-                    is_time_loaded <= 1;
+						hour <= RTC_DATA[16:12];
+						min <= RTC_DATA[11:6];
+						sec <= RTC_DATA[5:0];
+						is_time_loaded <= 1;
                 end
 
                 case ((BUTTONS ^ BUTTONS_PREV) & BUTTONS)

@@ -5,7 +5,7 @@ module TIMEZONE_SELECT(
 	input CLK,
 	input [3:0] STATE,
 	input [3:0] BUTTONS,
-	output reg [4:0] TZ_DATA,
+	output reg [3:0] TZ_DATA,
 	output reg MEM_EN
     );
 	
@@ -24,7 +24,7 @@ module TIMEZONE_SELECT(
 				 LEFT = 4'b0010,
 				 RIGHT = 4'b0001;
 				 
-	parameter KST = 5'b01001;
+	parameter KST = 4'b1010;
 	
 	reg [3:0] BUTTONS_PREV;
 	
@@ -38,8 +38,8 @@ module TIMEZONE_SELECT(
 				MEM_EN <= 1;
 				if ((BUTTONS_PREV ^ BUTTONS) && BUTTONS) begin // Applied One-shot trigger
 					case (BUTTONS_PREV ^ BUTTONS)
-						UP: if (TZ_DATA > 0) TZ_DATA <= TZ_DATA - 1; else TZ_DATA <= 13;
-						DOWN: if (TZ_DATA < 13) TZ_DATA <= TZ_DATA + 1; else TZ_DATA <= 0;
+						UP: TZ_DATA <= TZ_DATA + 1;
+						DOWN: TZ_DATA <= TZ_DATA - 1;
 					endcase
 				end
 			end else
