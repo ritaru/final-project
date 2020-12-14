@@ -4,10 +4,13 @@ module LCD_STATE(
 	input RESETN,
 	input CLK,
 	input [4:0] BUTTONS,
+	input ALARM_STATE,
+	input ALARM_LINE_POS,
 	output reg [3:0] STATE,
 	output reg [1:0] MENU_STATE,
 	output reg [31:0] CNT,
-	output reg [4:0] CHAR_CNT
+	output reg [4:0] CHAR_CNT,
+	output reg ALARM_MENU_STATE
     );		 
 
 	parameter INITIAL_DELAY = 4'b0000,
@@ -17,18 +20,39 @@ module LCD_STATE(
 				 SETUP = 4'b0100, // Menu select
 				 TIME_SET = 4'b0101, // Time set
 				 TZ_SET = 4'b0110, // Tinezone select
+				 ALARM_SET = 4'b0111,
 				 LINE1 = 4'b1000,
-				 LINE2 = 4'b1001;
+				 LINE2 = 4'b1001,
+				 ALARM_TIME_REACHED = 4'b1010;
 	
 	reg [9:0] BUTTON_CNT;
 	reg [4:0] BUTTONS_PREV;
+	reg [4:0] BUTTONS_ONESHOT;
+
+	reg ALARM_FIRED, ALARM_SUPPRESS;
 	
+	always @(posedge ALARM_SUPPRESS, posedge ALARM_STATE) begin
+			if (ALARM_SUPPRESS)
+				ALARM_FIRED <= 0;
+			else
+				ALARM_FIRED <= 1;
+	end
+
+	always @(negedge RESETN, posedge CLK) begin
+		if (~RESETN)
+			BUTTONS_ONESHOT <= 0;
+		else
+			BUTTONS_ONESHOT <= (BUTTONS ^ BUTTONS_PREV) & BUTTONS;
+	end
+
 	always @(negedge RESETN, posedge CLK) begin
 		if (~RESETN) begin
 			STATE <= INITIAL_DELAY;
 			MENU_STATE <= 0;
 			BUTTON_CNT <= 0;
 			BUTTONS_PREV <= 0;
+			ALARM_SUPPRESS <= 0;
+			ALARM_MENU_STATE <= 0;
 		end else begin
 			case(STATE)
 				INITIAL_DELAY: if(CNT == 20) STATE <= FUNCTION_SET; // Wait for more than 15ms
@@ -37,12 +61,12 @@ module LCD_STATE(
 				CLEAR_SCREEN: if (CNT == 1) STATE <= LINE1;
 				
 				SETUP: begin
-					case ((BUTTONS_PREV ^ BUTTONS) & BUTTONS)
+					case (BUTTONS_ONESHOT)
 						5'b00100: begin
 							case (MENU_STATE)
 								2'b00: STATE <= TIME_SET;
 								2'b01: STATE <= TZ_SET;
-								2'b10: STATE <= LINE1;
+								2'b10: STATE <= ALARM_SET;
 								2'b11: STATE <= LINE1;
 							endcase
 						end
@@ -51,10 +75,30 @@ module LCD_STATE(
 					endcase
 				end
 				
-				TIME_SET: if ((BUTTONS_PREV[2] ^ BUTTONS[2]) & BUTTONS[2]) STATE <= LINE1;
-				TZ_SET: if ((BUTTONS_PREV[2] ^ BUTTONS[2]) & BUTTONS[2]) STATE <= LINE1;
+				TIME_SET: if (BUTTONS_ONESHOT[2]) STATE <= LINE1;
+				TZ_SET: if (BUTTONS_ONESHOT[2]) STATE <= LINE1;
+				ALARM_SET: begin
+					case (ALARM_LINE_POS)
+						0: if (BUTTONS_ONESHOT[2]) ALARM_MENU_STATE <= 1;
+						1: begin
+							if (BUTTONS_ONESHOT[2]) begin
+								STATE <= LINE1;
+								ALARM_MENU_STATE <= 0;
+							end
+						end
+					endcase
+				end
+
 				LINE1: if(CNT == 20) STATE <= LINE2;
 				LINE2: if(CNT == 20) STATE <= LINE1;
+
+				ALARM_TIME_REACHED: begin
+					if (BUTTONS_ONESHOT[2]) begin
+						STATE <= LINE1;
+						ALARM_SUPPRESS <= 1;
+					end
+				end
+
 				default: STATE <= INITIAL_DELAY;
 			endcase
 			
@@ -65,7 +109,12 @@ module LCD_STATE(
 					STATE <= SETUP;
 				BUTTON_CNT <= 0;
 			end
-			
+
+			if (ALARM_FIRED && (~ALARM_SUPPRESS)) // TODO: Check if this logic works
+				STATE <= ALARM_TIME_REACHED;
+			else // Alarm not fired or Alarm suppressed
+				ALARM_SUPPRESS <= 0; // TODO: Made this else clause for ALARM_SUPPRESS reset, but not sure if this runs on priority as case block.
+
 			BUTTONS_PREV <= BUTTONS;
 		end
 	end

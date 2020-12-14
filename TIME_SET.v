@@ -25,8 +25,8 @@ module TIME_SET(
 				 LINE1 = 4'b1000,
 				 LINE2 = 4'b1001;
 				 
-	parameter UP = 5'b01000,
-				 DOWN = 5'b10000,
+	parameter UP = 5'b10000,
+				 DOWN = 5'b01000,
 				 LEFT = 5'b00010,
 				 RIGHT = 5'b00001,
 				 CENTER = 5'b00100;
